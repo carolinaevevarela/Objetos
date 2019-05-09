@@ -1,22 +1,29 @@
 class Product
-  attr_accessor :name
-  def initialize(name, *large, medium, small, xsmall)
+  attr_reader :name, :sizes
+  def initialize(name, *sizes)
     @name = name
-    @large = large.to_s
-    @medium = medium.to_s
-    @small = small.to_s
-    @xsmall = xsmall.to_s
+    @sizes = sizes.map{|e| e.to_i}
+  end
+  def catalog
+      return "#{self.name}, #{self.sizes[0..self.sizes.size-2].join(',')}"
   end
   def average
-    @large + @medium
+    @sizes.inject(&:+) / @sizes.size
   end
 end
 
 products_list = []
 data = []
+output = []
 File.open('catalogo.txt', 'r') { |file| data = file.readlines}
-  data.each do |prod|
-    ls = prod.split(', ')
-    products_list << Product.new(ls[0], *ls)
+
+data.each do |prod|
+  ls = prod.split(', ')
+  products_list.push(Product.new(*ls))
 end
-puts products_list
+
+products_list.each do |product|
+  output.push(product.catalog)
+end
+
+File.write('output.txt', output.join("\n"))
